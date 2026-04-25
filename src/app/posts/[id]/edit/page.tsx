@@ -25,7 +25,7 @@ export default function EditPostPage() {
     return <div className="text-center py-20 text-red-500">Access Denied</div>
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     const res = await fetch("/api/posts/" + id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, content: body }) })
