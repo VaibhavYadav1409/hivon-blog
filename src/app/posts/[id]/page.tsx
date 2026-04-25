@@ -7,7 +7,7 @@ import CommentSection from "@/components/CommentSection"
 import { formatDistanceToNow } from "date-fns"
 
 export default function PostPage() {
-  const [post, setPost] = useState(null)
+  const [post, setPost] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const { id } = useParams()
   const { user } = useAuth()
