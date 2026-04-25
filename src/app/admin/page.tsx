@@ -1,11 +1,12 @@
-"use client"
+﻿"use client"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
+import { Post } from "@/types"
 
 export default function AdminPage() {
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState<Post[]>([])
   const { user } = useAuth()
 
   useEffect(() => { fetchData() }, [])
@@ -18,7 +19,7 @@ export default function AdminPage() {
 
   if (!user || user.role !== "admin") return <div className="text-center py-20 text-red-500">Admin access required</div>
 
-  const handleDelete = async (postId) => {
+  const handleDelete = async (postId: string) => {
     if (!confirm("Delete this post?")) return
     const res = await fetch(`/api/posts/${postId}`, { method: "DELETE" })
     if (res.ok) setPosts(prev => prev.filter(p => p.id !== postId))
