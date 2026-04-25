@@ -1,20 +1,25 @@
-"use client"
+'use client'
+import { useState, useEffect } from 'react'
+import { useAuth } from '@/context/AuthContext'
+import { formatDistanceToNow } from 'date-fns'
 
-import { useState, useEffect } from "react"
-import { useAuth } from "@/context/AuthContext"
-import { Comment } from "@/types"
-import { formatDistanceToNow } from "date-fns"
+interface Comment {
+  id: string
+  comment_text: string
+  created_at: string
+  users?: { name: string }
+}
 
 export default function CommentSection({ postId }: { postId: string }) {
   const [comments, setComments] = useState<Comment[]>([])
-  const [newComment, setNewComment] = useState("")
+  const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
   const { user } = useAuth()
 
   useEffect(() => { fetchComments() }, [postId])
 
   const fetchComments = async () => {
-    const res = await fetch(`/api/comments?post_id=${postId}`)
+    const res = await fetch('/api/comments?post_id=' + postId)
     const data = await res.json()
     setComments(data.comments || [])
   }
@@ -23,38 +28,63 @@ export default function CommentSection({ postId }: { postId: string }) {
     e.preventDefault()
     if (!newComment.trim()) return
     setLoading(true)
-    const res = await fetch("/api/comments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const res = await fetch('/api/comments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ post_id: postId, comment_text: newComment })
     })
     if (res.ok) {
       const data = await res.json()
       setComments(prev => [...prev, data.comment])
-      setNewComment("")
+      setNewComment('')
     }
     setLoading(false)
   }
 
   return (
-    <div className="mt-10">
-      <h3 className="text-2xl font-bold text-gray-900 mb-6">Comments ({comments.length})</h3>
+    <div style={{borderTop:'1px solid #1a1a1a',paddingTop:'48px'}}>
+      <h3 style={{fontFamily:'Georgia,serif',fontSize:'24px',fontWeight:'700',color:'#f5f0e8',marginBottom:'32px'}}>
+        {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
+      </h3>
+
       {user ? (
-        <form onSubmit={handleSubmit} className="mb-8">
-          <textarea value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Write a comment..." rows={3} className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <button type="submit" disabled={loading} className="mt-2 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50">{loading ? "Posting..." : "Post Comment"}</button>
+        <form onSubmit={handleSubmit} style={{marginBottom:'40px'}}>
+          <textarea
+            value={newComment}
+            onChange={e => setNewComment(e.target.value)}
+            placeholder='Share your thoughts...'
+            rows={4}
+            style={{width:'100%',background:'#111',border:'1px solid #222',borderRadius:'6px',padding:'16px',fontSize:'15px',color:'#f5f0e8',outline:'none',fontFamily:'Georgia,serif',lineHeight:'1.6',boxSizing:'border-box',resize:'vertical',marginBottom:'12px',display:'block'}}
+          />
+          <button type='submit' disabled={loading}
+            style={{background:'#e8c547',color:'#0a0a0a',border:'none',borderRadius:'6px',padding:'10px 24px',fontSize:'14px',fontWeight:'700',cursor:'pointer',opacity:loading?0.7:1}}>
+            {loading ? 'Posting...' : 'Post Comment'}
+          </button>
         </form>
       ) : (
-        <p className="text-gray-500 mb-8"><a href="/auth/login" className="text-blue-600 underline">Login</a> to comment</p>
+        <div style={{background:'#111',border:'1px solid #1f1f1f',borderRadius:'6px',padding:'20px',marginBottom:'32px',textAlign:'center'}}>
+          <p style={{color:'#555',fontSize:'14px',margin:0}}>
+            <a href='/auth/login' style={{color:'#e8c547',textDecoration:'none',fontWeight:'600'}}>Sign in</a> to join the conversation
+          </p>
+        </div>
       )}
-      <div className="space-y-4">
+
+      <div style={{display:'flex',flexDirection:'column',gap:'16px'}}>
+        {comments.length === 0 && (
+          <div style={{textAlign:'center',padding:'40px',border:'1px dashed #1a1a1a',borderRadius:'8px'}}>
+            <p style={{color:'#444',fontSize:'14px',margin:0}}>No comments yet. Be the first!</p>
+          </div>
+        )}
         {comments.map(comment => (
-          <div key={comment.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-semibold text-gray-800">{comment.users?.name}</span>
-              <span className="text-xs text-gray-400">{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}</span>
+          <div key={comment.id} style={{background:'#111',border:'1px solid #1a1a1a',borderRadius:'8px',padding:'20px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'12px'}}>
+              <div style={{width:'30px',height:'30px',borderRadius:'50%',background:'#1a1a0a',border:'1px solid #2a2a10',display:'flex',alignItems:'center',justifyContent:'center',color:'#e8c547',fontSize:'12px',fontWeight:'700',flexShrink:0}}>
+                {comment.users?.name?.[0]?.toUpperCase() || '?'}
+              </div>
+              <span style={{color:'#888',fontSize:'14px',fontWeight:'600'}}>{comment.users?.name || 'Unknown'}</span>
+              <span style={{color:'#333',fontSize:'12px'}}>{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}</span>
             </div>
-            <p className="text-gray-700">{comment.comment_text}</p>
+            <p style={{color:'#777',fontSize:'15px',lineHeight:'1.6',margin:0}}>{comment.comment_text}</p>
           </div>
         ))}
       </div>
