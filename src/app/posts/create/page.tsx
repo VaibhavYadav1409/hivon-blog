@@ -19,7 +19,7 @@ export default function CreatePostPage() {
     return <div className="text-center py-20 text-red-500">Access Denied</div>
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
