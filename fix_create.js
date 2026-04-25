@@ -1,4 +1,6 @@
-'use client'
+const fs = require('fs');
+
+fs.writeFileSync('src/app/posts/create/page.tsx', `'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -49,9 +51,7 @@ export default function CreatePostPage() {
       const summaryRes = await fetch('/api/generate-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: title + '
-
-' + body })
+        body: JSON.stringify({ content: title + '\n\n' + body })
       })
       const summaryData = await summaryRes.json()
       setStatus('Publishing...')
@@ -140,4 +140,6 @@ export default function CreatePostPage() {
       </div>
     </div>
   )
-}
+}`, 'utf8');
+
+console.log('Create post page fixed!');
